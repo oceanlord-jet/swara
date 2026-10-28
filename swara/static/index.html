@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swara</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b4532a'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='serif'%3Es%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #faf7f2; --panel: #fff; --ink: #231f1b; --muted: #7a7068; --line: #e4ddd3;
+  --accent: #b4532a; --accent-ink: #fff; --bar: #d9cfc1; --hl: #f6d9c8; --err: #a32020;
+  --shadow: 0 1px 2px rgba(60,40,20,.06), 0 4px 14px rgba(60,40,20,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17140f; --panel: #211d17; --ink: #f1ebe2; --muted: #9b9084; --line: #362f26;
+    --accent: #e0834f; --accent-ink: #1b130d; --bar: #4a4034; --hl: #4a2f20; --err: #ff8b8b;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { color-scheme: light dark; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 20px 16px 8px; max-width: 1200px; margin: 0 auto; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+h1 { margin: 0; font: 600 28px/1.1 Georgia, "Times New Roman", serif; letter-spacing: .01em; }
+header p { margin: 0; color: var(--muted); }
+main { max-width: 1200px; margin: 0 auto; padding: 8px 16px 48px; display: grid; gap: 16px; grid-template-columns: 320px 1fr; align-items: start; }
+@media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+.panel h2 { margin: 0 0 10px; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.stack > * + * { margin-top: 16px; }
+label.field { display: block; font-size: 14px; }
+label.field > span { display: block; margin-bottom: 4px; color: var(--muted); font-size: 13px; }
+select, textarea, input[type=number] { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+textarea { min-height: 84px; resize: vertical; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; }
+button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 12px; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: .45; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.tabs button { flex: 1; padding: 6px 8px; font-size: 14px; }
+.tabs button[aria-selected=true] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 12px; text-align: center; color: var(--muted); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--hl); color: var(--ink); }
+.drop strong { display: block; color: var(--ink); font-weight: 600; }
+.drop small { display: block; margin-top: 2px; }
+.seg { display: grid; gap: 6px; }
+.seg label { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 14px; }
+.seg label:has(input:checked) { border-color: var(--accent); background: var(--hl); }
+.seg small { display: block; color: var(--muted); }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.soon { opacity: .55; font-size: 14px; color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; font-size: 13px; color: var(--muted); }
+.chip b { color: var(--ink); font-weight: 600; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+.toolbar .grow { flex: 1; }
+.acts { display: flex; gap: 6px; }
+.acts button { padding: 5px 10px; font-size: 14px; }
+.toolbar label { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.toolbar input[type=number] { width: 70px; }
+h3.title { margin: 0 0 4px; font: 600 22px/1.2 Georgia, serif; }
+.sub { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+.note-key { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+
+.sheet { --cols: 4; --size: 26px; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); row-gap: 16px; }
+.bar { display: flex; gap: 0; padding: 6px 4px 4px; border-left: 2px solid var(--bar); position: relative; min-width: 0; }
+.bar.end { border-right: 2px solid var(--bar); }
+.bar .num { position: absolute; top: -13px; left: 4px; font-size: 10px; color: var(--muted); }
+.beat { display: flex; flex: 1 1 0; padding: 0 3px; min-width: 0; }
+.beat + .beat { border-left: 1px dotted var(--line); }
+.cell { flex: 1 1 0; min-width: calc(var(--size) * .75); text-align: center; padding: 0 1px; border-radius: 6px; transition: background .08s; }
+.cell.on { background: var(--hl); }
+.sw { position: relative; display: inline-block; font: 500 var(--size)/1.5 Georgia, "Times New Roman", serif; min-width: .6em; padding: .15em 0; }
+.cell.hold .sw, .cell.rest .sw { color: var(--muted); }
+.sw[data-o="1"]::before, .sw[data-o="2"]::before { content: ""; position: absolute; top: .12em; left: 50%; width: .17em; height: .17em; margin-left: -.085em; border-radius: 50%; background: currentColor; }
+.sw[data-o="2"]::before { box-shadow: 0 -.26em 0 currentColor; top: .38em; }
+.sw[data-o="-1"]::after, .sw[data-o="-2"]::after { content: ""; position: absolute; bottom: .12em; left: 50%; width: .17em; height: .17em; margin-left: -.085em; border-radius: 50%; background: currentColor; }
+.sw[data-o="-2"]::after { box-shadow: 0 .26em 0 currentColor; bottom: .38em; }
+.sw[data-o="1"], .sw[data-o="2"] { padding-top: .35em; }
+.sw[data-o="-1"], .sw[data-o="-2"] { padding-bottom: .35em; }
+.sw.long { font-size: calc(var(--size) * .72); }
+.we { display: none; font-size: calc(var(--size) * .42); color: var(--muted); line-height: 1.2; font-family: ui-monospace, Menlo, monospace; }
+.sheet.show-we .we { display: block; }
+.empty { color: var(--muted); text-align: center; padding: 48px 12px; }
+.empty svg { opacity: .5; }
+.error { color: var(--err); background: color-mix(in srgb, var(--err) 10%, transparent); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+.warn { font-size: 14px; background: var(--hl); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+.warn button { padding: 2px 8px; margin-left: 6px; }
+@media print {
+  :root { --bg:#fff; --panel:#fff; --ink:#000; --muted:#555; --line:#ccc; --bar:#444; --hl:#fff; }
+  header, .controls, .toolbar, .error { display: none !important; }
+  main { display: block; padding: 0; } .panel { border: 0; box-shadow: none; padding: 0; }
+  .bar { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Swara</h1>
+  <p>Play Western songs on your Carnatic violin</p>
+</header>
+<main>
+  <aside class="controls stack">
+    <section class="panel">
+      <h2>1 · Your tune</h2>
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tab-file" aria-selected="true">File</button>
+        <button role="tab" id="tab-type" aria-selected="false">Type notes</button>
+        <button role="tab" id="tab-audio" aria-selected="false" title="Coming soon" disabled>Audio</button>
+      </div>
+      <div id="pane-file">
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a MIDI or MusicXML file">
+          <strong id="drop-title">Drop a file here</strong>
+          <small id="drop-sub">MIDI (.mid) or MusicXML (.musicxml, .mxl) &middot; or click to browse</small>
+        </div>
+        <input type="file" id="file" accept=".mid,.midi,.xml,.musicxml,.mxl" hidden>
+      </div>
+      <div id="pane-type" hidden>
+        <label class="field"><span>Notes: name, then length in beats after a colon. <b>r</b> = rest</span>
+          <textarea id="notes" spellcheck="false" placeholder="G4 G4 D5 D5 E5 E5 D5:2"></textarea></label>
+        <p style="margin:8px 0 0"><button id="example">Try an example</button></p>
+      </div>
+    </section>
+
+    <section class="panel stack">
+      <h2>2 · Your violin</h2>
+      <label class="field"><span>Sa (your tonic)</span><select id="sa"></select></label>
+      <div class="seg" role="radiogroup" aria-label="Placement">
+        <label><input type="radio" name="place" value="move" checked><span>Move song to my Sa
+          <small>The song's home note becomes Sa. Easiest to play.</small></span></label>
+        <label><input type="radio" name="place" value="abs"><span>Keep original pitches
+          <small>Sounds like the recording, so you can play along.</small></span></label>
+      </div>
+    </section>
+
+    <section class="panel stack">
+      <h2>3 · Fine tuning</h2>
+      <label class="field" id="part-wrap" hidden><span>Track (instrument)</span><select id="part"></select></label>
+      <label class="field"><span>Song's key</span><select id="key"></select></label>
+      <label class="field"><span>Notes per beat</span><select id="subdiv">
+        <option value="">Auto</option><option>1</option><option>2</option><option>3</option><option>4</option><option>6</option><option>8</option></select></label>
+      <label class="check"><input type="checkbox" id="long"> Long names (R1, R2, G2, G3…)</label>
+    </section>
+  </aside>
+
+  <section class="panel" id="out">
+    <div id="msg"></div>
+    <div id="result">
+      <div class="empty">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <p>Drop in a MIDI or MusicXML file, or type a few notes,<br>and the sargam appears here.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const ENH = { "C#": "C#/D♭", "D#": "D#/E♭", "F#": "F#/G♭", "G#": "G#/A♭", "A#": "A#/B♭" };
+const EXAMPLE = "G4 G4 D5 D5 E5 E5 D5:2 C5 C5 B4 B4 A4 A4 G4:2";
+let file = null, last = null, timer = null, reqId = 0, player = null;
+
+const store = {
+  get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+// ----- controls -----
+$("sa").innerHTML = NAMES.map((n) => `<option value="${n}">${ENH[n] || n}</option>`).join("");
+$("sa").value = store.get("sa", "D#");
+$("key").innerHTML = '<option value="">Auto-detect</option>' +
+  NAMES.flatMap((n) => [`${n} major`, `${n} minor`]).map((k) => `<option>${k}</option>`).join("");
+
+function tab(name) {
+  for (const t of ["file", "type"]) {
+    $("tab-" + t).setAttribute("aria-selected", t === name);
+    $("pane-" + t).hidden = t !== name;
+  }
+  schedule();
+}
+$("tab-file").onclick = () => tab("file");
+$("tab-type").onclick = () => tab("type");
+$("example").onclick = () => { $("notes").value = EXAMPLE; schedule(); };
+$("notes").addEventListener("input", schedule);
+
+const drop = $("drop");
+drop.onclick = () => $("file").click();
+drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } };
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); };
+$("file").onchange = (e) => { if (e.target.files[0]) setFile(e.target.files[0]); };
+window.addEventListener("dragover", (e) => e.preventDefault());
+window.addEventListener("drop", (e) => e.preventDefault());
+
+function setFile(f) {
+  file = f;
+  $("drop-title").textContent = f.name;
+  $("drop-sub").textContent = "Click or drop another file to replace";
+  $("part").value = ""; $("key").value = "";
+  $("part-wrap").hidden = true;
+  schedule(0, true);
+}
+
+for (const id of ["sa", "part", "key", "subdiv", "long"]) $(id).addEventListener("change", () => { if (id === "sa") store.set("sa", $("sa").value); schedule(0); });
+document.querySelectorAll("input[name=place]").forEach((r) => r.addEventListener("change", () => schedule(0)));
+
+// ----- talking to the server -----
+function schedule(delay = 350, resetPart = false) {
+  clearTimeout(timer);
+  timer = setTimeout(() => run(resetPart), delay);
+}
+
+async function run(resetPart) {
+  const typing = !$("pane-type").hidden;
+  if (typing ? !$("notes").value.trim() : !file) return;
+  const fd = new FormData();
+  if (typing) fd.append("notes", $("notes").value); else fd.append("file", file);
+  fd.append("sa", $("sa").value);
+  fd.append("absolute", document.querySelector("input[name=place]:checked").value === "abs");
+  fd.append("long", $("long").checked);
+  if ($("key").value) fd.append("key", $("key").value);
+  if ($("subdiv").value) fd.append("subdiv", $("subdiv").value);
+  if (!typing && !resetPart && $("part").value !== "") fd.append("part", $("part").value);
+  const mine = ++reqId;
+  try {
+    const res = await fetch("/api/convert", { method: "POST", body: fd });
+    const data = await res.json();
+    if (mine !== reqId) return;
+    if (!res.ok) throw new Error(data.error || "Something went wrong.");
+    last = data;
+    render(data);
+  } catch (e) {
+    if (mine !== reqId) return;
+    $("msg").innerHTML = `<div class="error" role="alert"></div>`;
+    $("msg").firstChild.textContent = e.message === "Failed to fetch" ? "Can't reach the Swara server. Is it still running?" : e.message;
+  }
+}
+
+// ----- drawing -----
+let curCols = 4;
+function applyCols() {
+  const d = last, sheet = $("sheet");
+  if (!d || !sheet) return;
+  const pref = store.get("cols", "auto"), size = +store.get("size", "26");
+  let cols = +pref;
+  if (pref === "auto") {
+    const cell = size * ($("long").checked ? 1.0 : 0.75) + 3;
+    const bar = d.unitsPerBar * cell + (d.unitsPerBar / d.subdiv) * 7 + 10;
+    cols = Math.max(1, Math.min(8, Math.floor(sheet.clientWidth / bar)));
+  }
+  curCols = cols;
+  let shown = size;
+  if (pref === "auto" && cols === 1) {  // one bar still doesn't fit: shrink the type to match
+    const room = sheet.clientWidth - 10 - (d.unitsPerBar / d.subdiv) * 7;
+    shown = Math.max(12, Math.min(size, Math.floor((room / d.unitsPerBar - 3) / ($("long").checked ? 1.0 : 0.75))));
+  }
+  sheet.style.setProperty("--size", shown + "px");
+  sheet.style.setProperty("--cols", cols);
+  [...sheet.children].forEach((b, i) => b.classList.toggle("end", (i + 1) % cols === 0 || i === sheet.children.length - 1));
+}
+window.addEventListener("resize", applyCols);
+
+function render(d) {
+  $("msg").innerHTML = "";
+  if (d.parts.length > 1) {
+    $("part-wrap").hidden = false;
+    $("part").innerHTML = d.parts.map((p) =>
+      `<option value="${p.index}">${esc(p.name)} · ${p.notes} notes${p.auto ? " ★" : ""}</option>`).join("");
+    $("part").value = d.part;
+  } else { $("part-wrap").hidden = true; $("part").innerHTML = ""; }
+  if (d.keyDetected) $("key").value = ""; 
+
+  const move = d.absolute ? "Original pitches kept" : `Moved ${d.shift > 0 ? "up" : d.shift < 0 ? "down" : ""} ${Math.abs(d.shift)} semitone${Math.abs(d.shift) === 1 ? "" : "s"}`;
+  const cols = store.get("cols", "auto");
+  const size = store.get("size", "26");
+  const we = store.get("we", "1") === "1";
+  const longNames = $("long").checked;
+  const warn = d.keyDetected && d.parts.length ? `<div class="warn">Key guessed as <b>${esc(d.key)}</b>. If the notes look wrong, pick the right key on the left.</div>` : "";
+
+  $("result").innerHTML = `
+    ${d.title ? `<h3 class="title">${esc(d.title)}</h3>` : ""}
+    <div class="sub">${esc(d.partName)}</div>
+    <div class="chips">
+      <span class="chip">Sa <b>${esc(d.sa)}</b></span>
+      <span class="chip">Song key <b>${esc(d.key)}</b>${d.keyDetected ? " (guessed)" : ""}</span>
+      <span class="chip"><b>${esc(move)}</b>${d.absolute ? "" : ` → sounds in ${esc(d.sa)} ${esc(d.key.split(" ")[1])}`}</span>
+      <span class="chip">Range <b>${esc(d.low)} – ${esc(d.high)}</b> (${esc(d.lowPitch)}–${esc(d.highPitch)})</span>
+    </div>
+    ${warn}
+    <div class="toolbar">
+      <button class="primary" id="play">▶ Play</button>
+      <label>Tempo <input type="number" id="bpm" min="30" max="240" value="${store.get("bpm", "100")}"> bpm</label>
+      <span class="grow"></span>
+      <label title="Show the original song's Western note under each swara"><input type="checkbox" id="we" ${we ? "checked" : ""}> Original notes</label>
+      <label>Bars/line <select id="cols"><option value="auto">Auto</option>${[1,2,3,4,5,6,8].map((n) => `<option ${cols == n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+      <label>Size <input type="range" id="size" min="16" max="48" value="${size}"></label>
+      <span class="acts"><button id="copy">Copy</button> <button id="save">Save .txt</button> <button id="print">Print</button></span>
+    </div>
+    <p class="note-key">Dot above = tara sthayi · dot below = mandra sthayi · <b>,</b> = hold · <b>–</b> = rest · lowercase r g m d n = the lower variants</p>
+    <div class="sheet ${we ? "show-we" : ""}" id="sheet"></div>`;
+
+  const sheet = $("sheet");
+  sheet.style.setProperty("--size", size + "px");
+  d.bars.forEach((bar, bi) => {
+    const el = document.createElement("div");
+    el.className = "bar";
+    el.innerHTML = `<span class="num">${d.firstBar + bi}</span>`;
+    for (let u = 0; u < bar.length; u += d.subdiv) {
+      const beat = document.createElement("div");
+      beat.className = "beat";
+      bar.slice(u, u + d.subdiv).forEach((c, k) => {
+        const cell = document.createElement("div");
+        cell.className = "cell " + c.t;
+        cell.id = `c-${bi}-${u + k}`;
+        if (c.t === "note") {
+          const o = Math.abs(c.octave) <= 2 ? c.octave : 0;
+          const label = Math.abs(c.octave) <= 2 ? c.name : c.name + (c.octave > 0 ? "+" : "") + c.octave;
+          cell.innerHTML = `<div class="sw ${label.length > 1 ? "long" : ""}" data-o="${o}">${esc(label)}</div><div class="we">${esc(c.western)}</div>`;
+        } else {
+          cell.innerHTML = `<div class="sw">${c.t === "hold" ? "," : "–"}</div><div class="we">&nbsp;</div>`;
+        }
+        beat.appendChild(cell);
+      });
+      el.appendChild(beat);
+    }
+    sheet.appendChild(el);
+  });
+  applyCols();
+
+  $("we").onchange = (e) => { store.set("we", e.target.checked ? "1" : "0"); sheet.classList.toggle("show-we", e.target.checked); };
+  $("cols").onchange = (e) => { store.set("cols", e.target.value); applyCols(); };
+  $("size").oninput = (e) => { store.set("size", e.target.value); sheet.style.setProperty("--size", e.target.value + "px"); applyCols(); };
+  $("bpm").onchange = (e) => store.set("bpm", e.target.value);
+  $("play").onclick = () => togglePlay(d);
+  $("print").onclick = () => window.print();
+  $("copy").onclick = async (e) => { try { await navigator.clipboard.writeText(asText(d)); e.target.textContent = "Copied ✓"; } catch { e.target.textContent = "Couldn't copy"; } setTimeout(() => (e.target.textContent = "Copy"), 1500); };
+  $("save").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([asText(d)], { type: "text/plain" }));
+    a.download = (d.title || "swara") + ".txt";
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+// Combining dots so the plain-text copy keeps tara/mandra marks.
+const MARK = { 1: "̇", 2: "̈", "-1": "̣", "-2": "̤" };
+function asText(d) {
+  const per = curCols;
+  const out = [];
+  if (d.title) out.push(d.title);
+  out.push(`Sa = ${d.sa}   Song key: ${d.key}   ${d.absolute ? "Original pitches" : "Moved " + d.shift + " semitones"}`, "");
+  for (let i = 0; i < d.bars.length; i += per) {
+    const rows = [[], []];
+    for (const bar of d.bars.slice(i, i + per)) {
+      const cells = bar.map((c) => c.t === "hold" ? [",", ","] : c.t === "rest" ? ["-", "-"] :
+        [c.name[0] + (MARK[c.octave] || "") + c.name.slice(1), c.western]);
+      const w = cells.map(([a, b]) => Math.max([...a].filter((ch) => !/\p{M}/u.test(ch)).length, b.length));
+      for (const r of [0, 1]) rows[r].push(cells.map((c, k) => {
+        const len = [...c[r]].filter((ch) => !/\p{M}/u.test(ch)).length;
+        return (k && k % d.subdiv === 0 ? "  " : "") + c[r] + " ".repeat(w[k] - len);
+      }).join(" "));
+    }
+    const pre = String(d.firstBar + i).padStart(4) + "  ";
+    out.push(pre + rows[0].join(" | ") + " |");
+    if ($("we").checked) out.push(" ".repeat(pre.length) + rows[1].join(" | ") + " |");
+    out.push("");
+  }
+  return out.join("\n");
+}
+
+// ----- playback (WebAudio) -----
+function togglePlay(d) {
+  if (player) { player.stop(); return; }
+  const bpm = Math.min(240, Math.max(30, +$("bpm").value || 100));
+  const unit = 60 / bpm / d.subdiv;
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const flat = d.bars.flat();
+  const ids = d.bars.flatMap((b, bi) => b.map((_, u) => `c-${bi}-${u}`));
+  const t0 = ctx.currentTime + 0.1, timeouts = [];
+  flat.forEach((c, i) => {
+    timeouts.push(setTimeout(() => {
+      document.querySelectorAll(".cell.on").forEach((e) => e.classList.remove("on"));
+      const el = $(ids[i]); if (el) { el.classList.add("on"); el.scrollIntoView({ block: "nearest" }); }
+    }, (0.1 + i * unit) * 1000));
+    if (c.t !== "note") return;
+    let n = 1; while (flat[i + n] && flat[i + n].t === "hold") n++;
+    const freq = 440 * 2 ** ((c.midi - 69) / 12), start = t0 + i * unit, end = start + n * unit;
+    for (const [mult, gain] of [[1, 0.22], [2, 0.08], [3, 0.04]]) {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = "sawtooth"; osc.frequency.value = freq * mult;
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(gain, start + 0.04);
+      g.gain.setValueAtTime(gain, Math.max(start + 0.04, end - 0.06));
+      g.gain.exponentialRampToValueAtTime(0.0001, end);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(start); osc.stop(end + 0.02);
+    }
+  });
+  const done = setTimeout(() => player && player.stop(), (0.2 + flat.length * unit) * 1000);
+  $("play").textContent = "■ Stop";
+  player = { stop() {
+    timeouts.forEach(clearTimeout); clearTimeout(done); ctx.close();
+    document.querySelectorAll(".cell.on").forEach((e) => e.classList.remove("on"));
+    const b = $("play"); if (b) b.textContent = "▶ Play";
+    player = null;
+  } };
+}
+</script>
+</body>
+</html>
